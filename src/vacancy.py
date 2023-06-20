@@ -18,6 +18,46 @@ class Vacancy:
         self.__vacancy_requirement = vacancy_requirement
         self.__work_address = work_address
 
+    def __le__(self, other):
+        """
+        Сравнивает вакансии между собой по зарплате
+        :param other: объект класса Vacancy
+        :return: bool
+        """
+        return self.__salary <= other.__salary
+
+    def __lt__(self, other):
+        """
+        Сравнивает вакансии между собой по зарплате
+        :param other: объект класса Vacancy
+        :return: bool
+        """
+        return self.__salary < other.__salary
+
+    def __eq__(self, other):
+        """
+        Сравнивает вакансии между собой по зарплате
+        :param other: объект класса Vacancy
+        :return: bool
+        """
+        return self.__salary == other.__salary
+
+    def __ge__(self, other):
+        """
+        Сравнивает вакансии между собой по зарплате
+        :param other: объект класса Vacancy
+        :return: bool
+        """
+        return self.__salary >= other.__salary
+
+    def __gt__(self, other):
+        """
+        Сравнивает вакансии между собой по зарплате
+        :param other: объект класса Vacancy
+        :return: bool
+        """
+        return self.__salary > other.__salary
+
     @property
     def profession(self):
         return self.__profession
