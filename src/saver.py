@@ -66,7 +66,8 @@ class JSONSaver(Saver):
             if isinstance(vacancy, src.vacancy.Vacancy):
                 vacancies_in_json.append({
                     "profession": vacancy.profession,
-                    "salary": vacancy.salary_from,
+                    "salary_from": vacancy.salary_from,
+                    "salary_to": vacancy.salary_to,
                     "vacancy_url": vacancy.vacancy_url,
                     "vacancy_requirement": vacancy.vacancy_requirement,
                     "work_address": vacancy.work_address
@@ -88,8 +89,8 @@ class CSVSaver(Saver):
         """
         vacancies = self.get_list()
 
-        csv_data = pd.DataFrame(vacancies, columns=['profession', 'salary', 'vacancy_url', 'vacancy_requirement',
-                                                    'work_address'])
+        csv_data = pd.DataFrame(vacancies, columns=['profession', 'salary_from', 'salary_to', 'vacancy_url',
+                                                    'vacancy_requirement', 'work_address'])
 
         csv_data.to_csv(self.PATH_TO_FILE)
 
@@ -113,6 +114,7 @@ class CSVSaver(Saver):
                 vacancies_in_list.append([
                     vacancy.profession,
                     vacancy.salary_from,
+                    vacancy.salary_to,
                     vacancy.vacancy_url,
                     vacancy.vacancy_requirement,
                     vacancy.work_address
