@@ -3,7 +3,7 @@ class Vacancy:
     Класс для представления вакансии
     """
 
-    last = []
+    all = []
 
     def __init__(self, profession, salary, vacancy_url, vacancy_requirement, work_address):
         """
@@ -20,7 +20,7 @@ class Vacancy:
         self.__vacancy_requirement = vacancy_requirement
         self.__work_address = work_address
 
-        self.last.append(self)
+        self.all.append(self)
 
     def __le__(self, other):
         """
@@ -88,8 +88,6 @@ class Vacancy:
         Инициализирует экземпляры класса Vacancy из переданных данных
         :param vacancies_data: данные о вакансиях
         """
-        cls.last.clear()
-
         if vacancies_data.get('objects') is not None:
             if vacancies_data['objects'] != [] and vacancies_data['total'] != 0:
 
