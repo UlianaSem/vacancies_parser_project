@@ -105,28 +105,42 @@ class Vacancy:
             if vacancies_data['items'] != [] and vacancies_data['found'] != 0:
 
                 for vacancy in vacancies_data['items']:
-                    if vacancy['salary'] is None and vacancy['address'] is None:
-                        salary_from = 0
-                        salary_to = 0
-                        address = 'Нет информации об адресе'
-                    elif vacancy['salary'] is None:
-                        salary_from = 0
-                        salary_to = 0
-                        address = vacancy['address']['raw']
-                    elif vacancy['address'] is None:
-                        salary_from = int(vacancy['salary']['from'])
-                        salary_to = int(vacancy['salary']['to'])
-                        address = 'Нет информации об адресе'
-                    else:
-                        try:
-                            salary_from = int(vacancy['salary']['from'])
-                        except TypeError:
-                            salary_from = 0
-                        try:
-                            salary_to = int(vacancy['salary']['to'])
-                        except TypeError:
-                            salary_to = 0
-                        address = vacancy['address']['raw']
+
+                    address = cls.validate_address(vacancy['address'])
+                    salary_from, salary_to = cls.validate_salary(vacancy['salary'])
 
                     cls(vacancy['name'], salary_from, salary_to, vacancy['url'], vacancy['snippet']['requirement'] +
                         '\n' + vacancy['snippet']['responsibility'], address)
+
+    @staticmethod
+    def validate_salary(salary):
+        """
+        Проверяет правильность формата зарплаты и возвращает в нужном формате
+        :param salary: данные о зарплате
+        :return: данные о зарплате в int
+        """
+        if salary is None:
+            return 0, 0
+
+        salary_from = salary['from']
+        salary_to = salary['to']
+
+        if salary_from is None:
+            salary_from = 0
+
+        if salary_to is None:
+            salary_to = 0
+
+        return int(salary_from), int(salary_to)
+
+    @staticmethod
+    def validate_address(address):
+        """
+        Проверяет правильность формата адреса и возвращает в нужном формате
+        :param address: данные об адресе
+        :return: данные об адресе в str
+        """
+        if address is None:
+            return 'Нет информации об адресе'
+
+        return address['raw']
