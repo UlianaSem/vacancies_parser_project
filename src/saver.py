@@ -47,7 +47,7 @@ class JSONSaver(Saver):
         with open(self.PATH_TO_FILE, 'w', encoding='utf-8') as file:
             file.write(vacancies)
 
-    def remove_vacancy(self):
+    def remove_vacancy(self, *args, **kwargs):
         pass
 
     def get_vacancy(self, *args, **kwargs):
@@ -66,7 +66,7 @@ class JSONSaver(Saver):
             if isinstance(vacancy, src.vacancy.Vacancy):
                 vacancies_in_json.append({
                     "profession": vacancy.profession,
-                    "salary": vacancy.salary,
+                    "salary": vacancy.salary_from,
                     "vacancy_url": vacancy.vacancy_url,
                     "vacancy_requirement": vacancy.vacancy_requirement,
                     "work_address": vacancy.work_address
@@ -93,7 +93,7 @@ class CSVSaver(Saver):
 
         csv_data.to_csv(self.PATH_TO_FILE)
 
-    def remove_vacancy(self):
+    def remove_vacancy(self, *args, **kwargs):
         pass
 
     def get_vacancy(self, *args, **kwargs):
@@ -112,7 +112,7 @@ class CSVSaver(Saver):
             if isinstance(vacancy, src.vacancy.Vacancy):
                 vacancies_in_list.append([
                     vacancy.profession,
-                    vacancy.salary,
+                    vacancy.salary_from,
                     vacancy.vacancy_url,
                     vacancy.vacancy_requirement,
                     vacancy.work_address

@@ -5,17 +5,17 @@ class Vacancy:
 
     all = []
 
-    def __init__(self, profession, salary, vacancy_url, vacancy_requirement, work_address):
+    def __init__(self, profession, salary_from, vacancy_url, vacancy_requirement, work_address):
         """
         Инициализирует атрибуты экземпляра класса Vacancy
         :param profession: название должности
-        :param salary: зарплата
+        :param salary_from: зарплата
         :param vacancy_url: ссылка на вакансию
         :param vacancy_requirement: требования вакансии или описание
         :param work_address: адрес работы
         """
         self.__profession = profession
-        self.__salary = salary
+        self.__salary_from = salary_from
         self.__vacancy_url = vacancy_url
         self.__vacancy_requirement = vacancy_requirement
         self.__work_address = work_address
@@ -28,7 +28,7 @@ class Vacancy:
         :param other: объект класса Vacancy
         :return: bool
         """
-        return self.__salary <= other.__salary
+        return self.__salary_from <= other.__salary_from
 
     def __lt__(self, other):
         """
@@ -36,7 +36,7 @@ class Vacancy:
         :param other: объект класса Vacancy
         :return: bool
         """
-        return self.__salary < other.__salary
+        return self.__salary_from < other.__salary_from
 
     def __eq__(self, other):
         """
@@ -44,7 +44,7 @@ class Vacancy:
         :param other: объект класса Vacancy
         :return: bool
         """
-        return self.__salary == other.__salary
+        return self.__salary_from == other.__salary_from
 
     def __ge__(self, other):
         """
@@ -52,7 +52,7 @@ class Vacancy:
         :param other: объект класса Vacancy
         :return: bool
         """
-        return self.__salary >= other.__salary
+        return self.__salary_from >= other.__salary_from
 
     def __gt__(self, other):
         """
@@ -60,15 +60,15 @@ class Vacancy:
         :param other: объект класса Vacancy
         :return: bool
         """
-        return self.__salary > other.__salary
+        return self.__salary_from > other.__salary_from
 
     @property
     def profession(self):
         return self.__profession
 
     @property
-    def salary(self):
-        return self.__salary
+    def salary_from(self):
+        return self.__salary_from
 
     @property
     def vacancy_url(self):
@@ -100,20 +100,20 @@ class Vacancy:
 
                 for vacancy in vacancies_data['items']:
                     if vacancy['salary'] is None and vacancy['address'] is None:
-                        salary = 0
+                        salary_from = 0
                         address = 'Нет информации об адресе'
                     elif vacancy['salary'] is None:
-                        salary = 0
+                        salary_from = 0
                         address = vacancy['address']['raw']
                     elif vacancy['address'] is None:
-                        salary = int(vacancy['salary']['from'])
+                        salary_from = int(vacancy['salary']['from'])
                         address = 'Нет информации об адресе'
                     else:
                         try:
-                            salary = int(vacancy['salary']['from'])
+                            salary_from = int(vacancy['salary']['from'])
                         except TypeError:
-                            salary = 0
+                            salary_from = 0
                         address = vacancy['address']['raw']
 
-                    cls(vacancy['name'], salary, vacancy['url'], vacancy['snippet']['requirement'] + '\n' +
+                    cls(vacancy['name'], salary_from, vacancy['url'], vacancy['snippet']['requirement'] + '\n' +
                         vacancy['snippet']['responsibility'], address)

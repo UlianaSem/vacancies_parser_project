@@ -9,7 +9,7 @@ def get_vacancy_for_test():
 
 
 def test_init(get_vacancy_for_test):
-    assert get_vacancy_for_test.salary == 100000
+    assert get_vacancy_for_test.salary_from == 100000
     assert get_vacancy_for_test.profession == 'Developer'
     assert get_vacancy_for_test.vacancy_url == 'www.test.ru'
     assert get_vacancy_for_test.vacancy_requirement == 'Some requirements'
@@ -93,7 +93,7 @@ def test_add_to_class():
     first_vacancy = src.vacancy.Vacancy.all[-1]
 
     assert first_vacancy.profession == 'Junior Python разработчик'
-    assert first_vacancy.salary == 60000
+    assert first_vacancy.salary_from == 60000
     assert first_vacancy.vacancy_url == 'https://api.hh.ru/vacancies/82128820?host=hh.ru'
     assert first_vacancy.work_address == 'Санкт-Петербург, набережная Обводного Канала, 93а'
 
@@ -209,6 +209,6 @@ def test_add_to_class():
     second_vacancy = src.vacancy.Vacancy.all[-1]
 
     assert second_vacancy.profession == 'Программист 1C'
-    assert second_vacancy.salary == 40065
+    assert second_vacancy.salary_from == 40065
     assert second_vacancy.vacancy_url == 'https://www.superjob.ru/vakansii/programmist-1c-44933587.html'
     assert second_vacancy.work_address == 'Москва, Николоямская улица, 33с1'
