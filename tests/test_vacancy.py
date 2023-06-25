@@ -90,7 +90,7 @@ def test_add_to_class():
          'alternate_url': 'https://hh.ru/search/vacancy?enable_snippets=true&search_field=name&text=py'
                           'thon'})
 
-    first_vacancy = src.vacancy.Vacancy.last[0]
+    first_vacancy = src.vacancy.Vacancy.all[-1]
 
     assert first_vacancy.profession == 'Junior Python разработчик'
     assert first_vacancy.salary == 60000
@@ -206,7 +206,7 @@ def test_add_to_class():
                                                    'latitude': 55.747475, 'longitude': 37.658482}], 'total': 1816,
                                       'more': True, 'subscription_id': 0, 'subscription_active': False})
 
-    second_vacancy = src.vacancy.Vacancy.last[0]
+    second_vacancy = src.vacancy.Vacancy.all[-1]
 
     assert second_vacancy.profession == 'Программист 1C'
     assert second_vacancy.salary == 40065
