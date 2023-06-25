@@ -5,17 +5,19 @@ class Vacancy:
 
     all = []
 
-    def __init__(self, profession, salary_from, vacancy_url, vacancy_requirement, work_address):
+    def __init__(self, profession, salary_from, salary_to, vacancy_url, vacancy_requirement, work_address):
         """
         Инициализирует атрибуты экземпляра класса Vacancy
         :param profession: название должности
-        :param salary_from: зарплата
+        :param salary_from: нижний предел зарплаты
+        :param salary_to: верхний предел зарплаты
         :param vacancy_url: ссылка на вакансию
         :param vacancy_requirement: требования вакансии или описание
         :param work_address: адрес работы
         """
         self.__profession = profession
         self.__salary_from = salary_from
+        self.__salary_to = salary_to
         self.__vacancy_url = vacancy_url
         self.__vacancy_requirement = vacancy_requirement
         self.__work_address = work_address
@@ -71,6 +73,10 @@ class Vacancy:
         return self.__salary_from
 
     @property
+    def salary_to(self):
+        return self.__salary_to
+
+    @property
     def vacancy_url(self):
         return self.__vacancy_url
 
@@ -92,8 +98,8 @@ class Vacancy:
             if vacancies_data['objects'] != [] and vacancies_data['total'] != 0:
 
                 for vacancy in vacancies_data['objects']:
-                    cls(vacancy['profession'], int(vacancy['payment_from']), vacancy['link'], vacancy['candidat'],
-                        vacancy['address'])
+                    cls(vacancy['profession'], int(vacancy['payment_from']),  int(vacancy['payment_to']),
+                        vacancy['link'], vacancy['candidat'], vacancy['address'])
 
         if vacancies_data.get('items') is not None:
             if vacancies_data['items'] != [] and vacancies_data['found'] != 0:
@@ -101,19 +107,26 @@ class Vacancy:
                 for vacancy in vacancies_data['items']:
                     if vacancy['salary'] is None and vacancy['address'] is None:
                         salary_from = 0
+                        salary_to = 0
                         address = 'Нет информации об адресе'
                     elif vacancy['salary'] is None:
                         salary_from = 0
+                        salary_to = 0
                         address = vacancy['address']['raw']
                     elif vacancy['address'] is None:
                         salary_from = int(vacancy['salary']['from'])
+                        salary_to = int(vacancy['salary']['to'])
                         address = 'Нет информации об адресе'
                     else:
                         try:
                             salary_from = int(vacancy['salary']['from'])
                         except TypeError:
                             salary_from = 0
+                        try:
+                            salary_to = int(vacancy['salary']['to'])
+                        except TypeError:
+                            salary_to = 0
                         address = vacancy['address']['raw']
 
-                    cls(vacancy['name'], salary_from, vacancy['url'], vacancy['snippet']['requirement'] + '\n' +
-                        vacancy['snippet']['responsibility'], address)
+                    cls(vacancy['name'], salary_from, salary_to, vacancy['url'], vacancy['snippet']['requirement'] +
+                        '\n' + vacancy['snippet']['responsibility'], address)

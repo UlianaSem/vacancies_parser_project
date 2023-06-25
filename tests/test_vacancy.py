@@ -5,11 +5,12 @@ import src.vacancy
 
 @pytest.fixture
 def get_vacancy_for_test():
-    return src.vacancy.Vacancy('Developer', 100000, 'www.test.ru', 'Some requirements', 'Some address')
+    return src.vacancy.Vacancy('Developer', 100000, 110000, 'www.test.ru', 'Some requirements', 'Some address')
 
 
 def test_init(get_vacancy_for_test):
     assert get_vacancy_for_test.salary_from == 100000
+    assert get_vacancy_for_test.salary_to == 110000
     assert get_vacancy_for_test.profession == 'Developer'
     assert get_vacancy_for_test.vacancy_url == 'www.test.ru'
     assert get_vacancy_for_test.vacancy_requirement == 'Some requirements'
@@ -17,7 +18,7 @@ def test_init(get_vacancy_for_test):
 
 
 def test_compressions(get_vacancy_for_test):
-    other_vacancy = src.vacancy.Vacancy('Engineer', 60000, 'www.test.ru', 'Some requirements', 'Some address')
+    other_vacancy = src.vacancy.Vacancy('Engineer', 60000, 60000, 'www.test.ru', 'Some requirements', 'Some address')
 
     assert (get_vacancy_for_test > other_vacancy) is True
     assert (get_vacancy_for_test < other_vacancy) is False
@@ -94,6 +95,7 @@ def test_add_to_class():
 
     assert first_vacancy.profession == 'Junior Python разработчик'
     assert first_vacancy.salary_from == 60000
+    assert first_vacancy.salary_to == 0
     assert first_vacancy.vacancy_url == 'https://api.hh.ru/vacancies/82128820?host=hh.ru'
     assert first_vacancy.work_address == 'Санкт-Петербург, набережная Обводного Канала, 93а'
 
@@ -210,5 +212,6 @@ def test_add_to_class():
 
     assert second_vacancy.profession == 'Программист 1C'
     assert second_vacancy.salary_from == 40065
+    assert second_vacancy.salary_to == 0
     assert second_vacancy.vacancy_url == 'https://www.superjob.ru/vakansii/programmist-1c-44933587.html'
     assert second_vacancy.work_address == 'Москва, Николоямская улица, 33с1'
