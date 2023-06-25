@@ -42,7 +42,7 @@ class JSONSaver(Saver):
         """
         Сохраняет вакансии в файл JSON
         """
-        vacancies = self.to_json()
+        vacancies = self.get_json()
 
         with open(self.PATH_TO_FILE, 'w', encoding='utf-8') as file:
             file.write(vacancies)
@@ -54,10 +54,10 @@ class JSONSaver(Saver):
         pass
 
     @staticmethod
-    def to_json():
+    def get_json():
         """
-        Возвращает экземпляры класса Vacancy в формате списка с JSON
-        :return: список с JSON
+        Возвращает экземпляры класса Vacancy в формате JSON
+        :return: JSON
         """
         vacancies = src.vacancy.Vacancy.all
         vacancies_in_json = []
@@ -86,10 +86,11 @@ class CSVSaver(Saver):
         """
         Сохраняет вакансии в файл CSV
         """
-        vacancies = src.vacancy.Vacancy.all
+        vacancies = self.get_list()
 
-        csv_data = pd.DataFrame(src.vacancy.Vacancy.all,
-                                columns=['page.number in order', 'name', 'url', 'price', 'address', 'date'])
+        csv_data = pd.DataFrame(vacancies, columns=['profession', 'salary', 'vacancy_url', 'vacancy_requirement',
+                                                    'work_address'])
+
         csv_data.to_csv(self.PATH_TO_FILE)
 
     def remove_vacancy(self):
@@ -97,3 +98,24 @@ class CSVSaver(Saver):
 
     def get_vacancy(self, *args, **kwargs):
         pass
+
+    @staticmethod
+    def get_list():
+        """
+        Возвращает экземпляры класса Vacancy в формате списка
+        :return: список
+        """
+        vacancies = src.vacancy.Vacancy.all
+        vacancies_in_list = []
+
+        for vacancy in vacancies:
+            if isinstance(vacancy, src.vacancy.Vacancy):
+                vacancies_in_list.append([
+                    vacancy.profession,
+                    vacancy.salary,
+                    vacancy.vacancy_url,
+                    vacancy.vacancy_requirement,
+                    vacancy.work_address
+                ])
+
+        return vacancies_in_list
