@@ -1,7 +1,10 @@
-from abc import ABC, abstractmethod
-import src.vacancy
-import pandas as pd
 import json
+import re
+from abc import ABC, abstractmethod
+
+import pandas as pd
+
+import src.vacancy
 
 
 class Saver(ABC):
@@ -17,16 +20,23 @@ class Saver(ABC):
         pass
 
     @abstractmethod
-    def remove_vacancy(self):
+    def remove_vacancy(self, vacancy):
         """
         Абстрактный метод для удаления вакансии из файла
         """
         pass
 
     @abstractmethod
-    def get_vacancy(self, *args, **kwargs):
+    def get_vacancy_by_salary(self, salary):
         """
-        Абстрактный метод для получения вакансий из файла
+        Абстрактный метод для получения вакансий из файла по зарплате
+        """
+        pass
+
+    @abstractmethod
+    def get_vacancy_by_address(self, address):
+        """
+        Абстрактный метод для получения вакансий из файла по адресу
         """
         pass
 
@@ -42,19 +52,65 @@ class JSONSaver(Saver):
         """
         Сохраняет вакансии в файл JSON
         """
-        vacancies = self.get_json()
+        vacancies = self.get_json__()
 
         with open(self.PATH_TO_FILE, 'w', encoding='utf-8') as file:
             file.write(vacancies)
 
-    def remove_vacancy(self, *args, **kwargs):
+    def remove_vacancy(self, vacancy):
         pass
 
-    def get_vacancy(self, *args, **kwargs):
-        pass
+    def get_vacancy_by_salary(self, salary):
+        """
+        Ищет вакансии по зарплате и возвращает список с вакансиями
+        :param salary: зарплата для поиска
+        :return: список с вакансиями
+        """
+        salary_for_check = []
+        vacancies_for_response = []
+
+        for salary_ in re.split(r"[/ -]", salary):
+            if salary_.isdigit():
+                salary_for_check.append(int(salary_))
+
+        vacancies = self.open_file__()
+
+        for vacancy in vacancies:
+            if vacancy['salary_from'] >= salary_for_check[0]:
+                vacancies_for_response.append(vacancy)
+
+        return vacancies_for_response
+
+    def get_vacancy_by_address(self, address):
+        """
+        Ищет вакансии по адресу и возвращает список с вакансиями
+        :param address: адрес для поиска
+        :return: список с вакансиями
+        """
+        address = set(address.strip().lower().split(', '))
+        vacancies_for_response = []
+
+        vacancies = self.open_file__()
+
+        for vacancy in vacancies:
+            address_for_check = set(vacancy['work_address'].lower().split(', '))
+            if address.issubset(address_for_check):
+                vacancies_for_response.append(vacancy)
+
+        return vacancies_for_response
+
+    def open_file__(self):
+        """
+        Открывает и возвращает файл с вакансиями
+        :return: список словарей м вакансиями
+        """
+        with open(self.PATH_TO_FILE, 'r', encoding='utf-8') as file:
+            vacancies = file.read()
+
+        return json.loads(vacancies)
 
     @staticmethod
-    def get_json():
+    def get_json__():
         """
         Возвращает экземпляры класса Vacancy в формате JSON
         :return: JSON
@@ -87,21 +143,27 @@ class CSVSaver(Saver):
         """
         Сохраняет вакансии в файл CSV
         """
-        vacancies = self.get_list()
+        vacancies = self.get_list__()
 
         csv_data = pd.DataFrame(vacancies, columns=['profession', 'salary_from', 'salary_to', 'vacancy_url',
                                                     'vacancy_requirement', 'work_address'])
 
         csv_data.to_csv(self.PATH_TO_FILE)
 
-    def remove_vacancy(self, *args, **kwargs):
+    def remove_vacancy(self, vacancy):
         pass
 
-    def get_vacancy(self, *args, **kwargs):
+    def get_vacancy_by_salary(self, salary):
+        pass
+
+    def get_vacancy_by_address(self, address):
+        """
+        Абстрактный метод для получения вакансий из файла по адресу
+        """
         pass
 
     @staticmethod
-    def get_list():
+    def get_list__():
         """
         Возвращает экземпляры класса Vacancy в формате списка
         :return: список
