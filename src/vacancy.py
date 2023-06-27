@@ -1,3 +1,6 @@
+import re
+
+
 class Vacancy:
     """
     Класс для представления вакансии
@@ -132,6 +135,47 @@ class Vacancy:
             salary_to = 0
 
         return int(salary_from), int(salary_to)
+
+    @classmethod
+    def get_vacancy_by_salary(cls, salary):
+        """
+        Ищет вакансии по зарплате и возвращает список с вакансиями
+        :param salary: зарплата для поиска
+        :return: список с вакансиями
+        """
+        salary_for_check = []
+        vacancies_for_response = []
+
+        for salary_ in re.split(r"[/ -]", salary):
+            if salary_.isdigit():
+                salary_for_check.append(int(salary_))
+
+        vacancies = cls.all
+
+        for vacancy in vacancies:
+            if vacancy.salary_from >= salary_for_check[0]:
+                vacancies_for_response.append(vacancy)
+
+        return vacancies_for_response
+
+    @classmethod
+    def get_vacancy_by_address(cls, address):
+        """
+        Ищет вакансии по адресу и возвращает список с вакансиями
+        :param address: адрес для поиска
+        :return: список с вакансиями
+        """
+        address = set(re.split(r', | ', address.strip().lower()))
+        vacancies_for_response = []
+
+        vacancies = cls.all
+
+        for vacancy in vacancies:
+            address_for_check = set(re.split(r', | ', vacancy.work_address.lower()))
+            if address.issubset(address_for_check):
+                vacancies_for_response.append(vacancy)
+
+        return vacancies_for_response
 
     @staticmethod
     def validate_address(address):
