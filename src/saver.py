@@ -57,8 +57,23 @@ class JSONSaver(Saver):
         with open(self.PATH_TO_FILE, 'w', encoding='utf-8') as file:
             file.write(vacancies)
 
-    def remove_vacancy(self, vacancy):
-        pass
+    def remove_vacancy(self, vacancy_for_remove: src.vacancy.Vacancy):
+        """
+        Удаляет заданную вакансию из файла
+        :param vacancy_for_remove: объект класса Vacancy для удаления
+        """
+        flag = False
+        vacancies = self.open_file__()
+
+        for vacancy in vacancies:
+            if vacancy_for_remove.vacancy_url == vacancy['vacancy_url']:
+                vacancies.remove(vacancy)
+                flag = True
+                break
+
+        if flag:
+            with open(self.PATH_TO_FILE, 'w', encoding='utf-8') as file:
+                file.write(vacancies)
 
     def get_vacancy_by_salary(self, salary):
         """
