@@ -136,6 +136,15 @@ class Vacancy:
 
         return int(salary_from), int(salary_to)
 
+    def build_response(self):
+        """
+        Строит ответ в нужном формате
+        :return: строка в нужном формате"""
+        return f'''Должность: {self.profession}
+Зарплата: от {self.salary_from} до {self.salary_to}
+Ссылка на вакансию: {self.vacancy_url}
+Адрес работы: {self.work_address}'''
+
     @classmethod
     def get_vacancy_by_salary(cls, salary):
         """
