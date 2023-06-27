@@ -1,8 +1,7 @@
+import csv
 import json
 import re
 from abc import ABC, abstractmethod
-
-import pandas as pd
 
 import src.vacancy
 
@@ -40,6 +39,28 @@ class Saver(ABC):
         """
         pass
 
+    @classmethod
+    def get_data__(cls):
+        """
+        Возвращает экземпляры класса Vacancy в формате списка словарей
+        :return: список словарей
+        """
+        vacancies = src.vacancy.Vacancy.all
+        vacancies_ = []
+
+        for vacancy in vacancies:
+            if isinstance(vacancy, src.vacancy.Vacancy):
+                vacancies_.append({
+                    "profession": vacancy.profession,
+                    "salary_from": vacancy.salary_from,
+                    "salary_to": vacancy.salary_to,
+                    "vacancy_url": vacancy.vacancy_url,
+                    "vacancy_requirement": vacancy.vacancy_requirement,
+                    "work_address": vacancy.work_address
+                })
+
+        return vacancies_
+
 
 class JSONSaver(Saver):
     """
@@ -52,10 +73,9 @@ class JSONSaver(Saver):
         """
         Сохраняет вакансии в файл JSON
         """
-        vacancies = self.get_json__()
+        vacancies = self.get_data__()
 
-        with open(self.PATH_TO_FILE, 'w', encoding='utf-8') as file:
-            file.write(vacancies)
+        self.write_to_file(vacancies)
 
     def remove_vacancy(self, vacancy_for_remove: src.vacancy.Vacancy):
         """
@@ -72,8 +92,8 @@ class JSONSaver(Saver):
                 break
 
         if flag:
-            with open(self.PATH_TO_FILE, 'w', encoding='utf-8') as file:
-                file.write(vacancies)
+            vacancies = json.dumps(vacancies)
+            self.write_to_file(vacancies)
 
     def get_vacancy_by_salary(self, salary):
         """
@@ -91,7 +111,7 @@ class JSONSaver(Saver):
         vacancies = self.open_file__()
 
         for vacancy in vacancies:
-            if vacancy['salary_from'] >= salary_for_check[0]:
+            if int(vacancy['salary_from']) >= salary_for_check[0]:
                 vacancies_for_response.append(vacancy)
 
         return vacancies_for_response
@@ -102,13 +122,13 @@ class JSONSaver(Saver):
         :param address: адрес для поиска
         :return: список с вакансиями
         """
-        address = set(address.strip().lower().split(', '))
+        address = set(re.split(r', | ', address.strip().lower()))
         vacancies_for_response = []
 
         vacancies = self.open_file__()
 
         for vacancy in vacancies:
-            address_for_check = set(vacancy['work_address'].lower().split(', '))
+            address_for_check = set(re.split(r', | ', vacancy['work_address'].lower()))
             if address.issubset(address_for_check):
                 vacancies_for_response.append(vacancy)
 
@@ -124,27 +144,22 @@ class JSONSaver(Saver):
 
         return json.loads(vacancies)
 
-    @staticmethod
-    def get_json__():
+    def write_to_file(self, vacancies):
+        """
+        Записывает информацию о вакансиях в файл
+        """
+        with open(self.PATH_TO_FILE, 'w', encoding='utf-8') as file:
+            file.write(vacancies)
+
+    @classmethod
+    def get_data__(cls):
         """
         Возвращает экземпляры класса Vacancy в формате JSON
         :return: JSON
         """
-        vacancies = src.vacancy.Vacancy.all
-        vacancies_in_json = []
+        vacancies = super().get_data__()
 
-        for vacancy in vacancies:
-            if isinstance(vacancy, src.vacancy.Vacancy):
-                vacancies_in_json.append({
-                    "profession": vacancy.profession,
-                    "salary_from": vacancy.salary_from,
-                    "salary_to": vacancy.salary_to,
-                    "vacancy_url": vacancy.vacancy_url,
-                    "vacancy_requirement": vacancy.vacancy_requirement,
-                    "work_address": vacancy.work_address
-                })
-
-        return json.dumps(vacancies_in_json)
+        return json.dumps(vacancies)
 
 
 class CSVSaver(Saver):
@@ -158,43 +173,89 @@ class CSVSaver(Saver):
         """
         Сохраняет вакансии в файл CSV
         """
-        vacancies = self.get_list__()
+        vacancies = self.get_data__()
 
-        csv_data = pd.DataFrame(vacancies, columns=['profession', 'salary_from', 'salary_to', 'vacancy_url',
-                                                    'vacancy_requirement', 'work_address'])
+        self.write_to_file(vacancies)
 
-        csv_data.to_csv(self.PATH_TO_FILE)
+    def remove_vacancy(self, vacancy_for_remove: src.vacancy.Vacancy):
+        """
+        Удаляет заданную вакансию из файла
+        :param vacancy_for_remove: объект класса Vacancy для удаления
+        """
+        flag = False
+        vacancies = self.open_file__()
 
-    def remove_vacancy(self, vacancy):
-        pass
+        for vacancy in vacancies:
+            if vacancy_for_remove.vacancy_url == vacancy['vacancy_url']:
+                vacancies.remove(vacancy)
+                flag = True
+                break
+
+        if flag:
+            self.write_to_file(vacancies)
 
     def get_vacancy_by_salary(self, salary):
-        pass
+        """
+        Ищет вакансии по зарплате и возвращает список с вакансиями
+        :param salary: зарплата для поиска
+        :return: список с вакансиями
+        """
+        salary_for_check = []
+        vacancies_for_response = []
+
+        for salary_ in re.split(r"[/ -]", salary):
+            if salary_.isdigit():
+                salary_for_check.append(int(salary_))
+
+        vacancies = self.open_file__()
+
+        for vacancy in vacancies:
+            if int(vacancy['salary_from']) >= salary_for_check[0]:
+                vacancies_for_response.append(vacancy)
+
+        return vacancies_for_response
 
     def get_vacancy_by_address(self, address):
         """
-        Абстрактный метод для получения вакансий из файла по адресу
+        Ищет вакансии по адресу и возвращает список с вакансиями
+        :param address: адрес для поиска
+        :return: список с вакансиями
         """
-        pass
+        address = set(re.split(r', | ', address.strip().lower()))
+        vacancies_for_response = []
 
-    @staticmethod
-    def get_list__():
-        """
-        Возвращает экземпляры класса Vacancy в формате списка
-        :return: список
-        """
-        vacancies = src.vacancy.Vacancy.all
-        vacancies_in_list = []
+        vacancies = self.open_file__()
 
         for vacancy in vacancies:
-            if isinstance(vacancy, src.vacancy.Vacancy):
-                vacancies_in_list.append([
-                    vacancy.profession,
-                    vacancy.salary_from,
-                    vacancy.salary_to,
-                    vacancy.vacancy_url,
-                    vacancy.vacancy_requirement,
-                    vacancy.work_address
-                ])
+            address_for_check = set(re.split(r', | ', vacancy['work_address'].lower()))
+            if address.issubset(address_for_check):
+                vacancies_for_response.append(vacancy)
 
-        return vacancies_in_list
+        return vacancies_for_response
+
+    def open_file__(self):
+        """
+        Открывает и возвращает файл с вакансиями
+        :return: список словарей м вакансиями
+        """
+        vacancies = []
+
+        with open(self.PATH_TO_FILE, 'r', encoding='utf-8') as file:
+            reader = csv.DictReader(file)
+
+            for line in reader:
+                vacancies.append(line)
+
+        return vacancies
+
+    def write_to_file(self, vacancies):
+        """
+        Записывает информацию о вакансиях в файл
+        """
+        with open(self.PATH_TO_FILE, 'w', encoding='utf-8') as file:
+            field_names = ['profession', 'salary_from', 'salary_to', 'vacancy_url', 'vacancy_requirement',
+                           'work_address']
+            writer = csv.DictWriter(file, fieldnames=field_names)
+
+            writer.writeheader()
+            writer.writerows(vacancies)
