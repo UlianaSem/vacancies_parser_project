@@ -215,3 +215,34 @@ def test_add_to_class():
     assert second_vacancy.salary_to == 0
     assert second_vacancy.vacancy_url == 'https://www.superjob.ru/vakansii/programmist-1c-44933587.html'
     assert second_vacancy.work_address == 'Москва, Николоямская улица, 33с1'
+
+
+def test_build_response(get_vacancy_for_test):
+    builder = src.vacancy.VacancyBuilder()
+
+    assert builder.build_response(get_vacancy_for_test) == "Должность: Developer\nЗарплата: от 100000 до " \
+                                                           "110000\nСсылка на вакансию: www.test.ru\nАдрес работы: " \
+                                                           "Some address"
+
+
+def test_get_vacancy_by_salary():
+    filter_ = src.vacancy.VacancyFilter()
+
+    assert filter_.get_vacancy_by_salary('Тест') == 'Введите хотя бы одно число'
+
+    response = filter_.get_vacancy_by_salary('10000')
+    builder = src.vacancy.VacancyBuilder()
+
+    assert builder.build_response(response[0]) == 'Должность: Developer\nЗарплата: от 100000 до 110000\nСсылка на ' \
+                                                  'вакансию: www.test.ru\nАдрес работы: Some address'
+
+
+def test_get_vacancy_by_address():
+    filter_ = src.vacancy.VacancyFilter()
+    response = filter_.get_vacancy_by_address('Москва, Николоямская')
+
+    builder = src.vacancy.VacancyBuilder()
+
+    assert builder.build_response(response[0]) == 'Должность: Программист 1C\nЗарплата: от 40065 до 0\nСсылка на ' \
+                                                  'вакансию: https://www.superjob.ru/vakansii/programmist-1c-44933587' \
+                                                  '.html\nАдрес работы: Москва, Николоямская улица, 33с1'
