@@ -126,6 +126,9 @@ class VacancyFilter:
             if salary_.isdigit():
                 salary_for_check.append(int(salary_))
 
+        if len(salary_for_check) == 0:
+            return 'Введите хотя бы одно число'
+
         vacancies = saver.open_file__()
 
         for vacancy in vacancies:
