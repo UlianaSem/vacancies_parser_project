@@ -136,17 +136,26 @@ class Vacancy:
 
         return int(salary_from), int(salary_to)
 
-    def build_response(self):
+    @staticmethod
+    def validate_address(address):
         """
-        Строит ответ в нужном формате
-        :return: строка в нужном формате"""
-        return f'''Должность: {self.profession}
-Зарплата: от {self.salary_from} до {self.salary_to}
-Ссылка на вакансию: {self.vacancy_url}
-Адрес работы: {self.work_address}'''
+        Проверяет правильность формата адреса и возвращает в нужном формате
+        :param address: данные об адресе
+        :return: данные об адресе в str
+        """
+        if address is None:
+            return 'Нет информации об адресе'
 
-    @classmethod
-    def get_vacancy_by_salary(cls, salary):
+        return address['raw']
+
+
+class VacancyFilter:
+    """
+    Класс для фильтрации вакансий
+    """
+
+    @staticmethod
+    def get_vacancy_by_salary(salary):
         """
         Ищет вакансии по зарплате и возвращает список с вакансиями
         :param salary: зарплата для поиска
@@ -159,16 +168,19 @@ class Vacancy:
             if salary_.isdigit():
                 salary_for_check.append(int(salary_))
 
-        vacancies = cls.all
+        if len(salary_for_check) == 0:
+            return 'Введите хотя бы одно число'
+
+        vacancies = Vacancy.all
 
         for vacancy in vacancies:
-            if vacancy.salary_from >= salary_for_check[0]:
+            if vacancy.salary_from >= salary_for_check[0] or vacancy.salary_to >= salary_for_check[0]:
                 vacancies_for_response.append(vacancy)
 
         return vacancies_for_response
 
-    @classmethod
-    def get_vacancy_by_address(cls, address):
+    @staticmethod
+    def get_vacancy_by_address(address):
         """
         Ищет вакансии по адресу и возвращает список с вакансиями
         :param address: адрес для поиска
@@ -177,7 +189,7 @@ class Vacancy:
         address = set(re.split(r', | ', address.strip().lower()))
         vacancies_for_response = []
 
-        vacancies = cls.all
+        vacancies = Vacancy.all
 
         for vacancy in vacancies:
             address_for_check = set(re.split(r', | ', vacancy.work_address.lower()))
@@ -186,14 +198,18 @@ class Vacancy:
 
         return vacancies_for_response
 
-    @staticmethod
-    def validate_address(address):
-        """
-        Проверяет правильность формата адреса и возвращает в нужном формате
-        :param address: данные об адресе
-        :return: данные об адресе в str
-        """
-        if address is None:
-            return 'Нет информации об адресе'
 
-        return address['raw']
+class VacancyBuilder:
+    """
+    Класс для построения ответа о вакансии
+    """
+
+    @staticmethod
+    def build_response(vacancy: Vacancy):
+        """
+        Строит ответ в нужном формате
+        :return: строка в нужном формате"""
+        return f'''Должность: {vacancy.profession}
+Зарплата: от {vacancy.salary_from} до {vacancy.salary_to}
+Ссылка на вакансию: {vacancy.vacancy_url}
+Адрес работы: {vacancy.work_address}'''
