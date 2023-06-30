@@ -1,4 +1,5 @@
 import re
+from abc import ABC, abstractmethod
 
 
 class Vacancy:
@@ -92,28 +93,237 @@ class Vacancy:
         return self.__work_address
 
     @classmethod
-    def add_to_class(cls, vacancies_data: dict):
+    def add_to_class_from_superjob(cls, vacancies_data: dict):
         """
-        Инициализирует экземпляры класса Vacancy из переданных данных
+        Инициализирует экземпляры класса Vacancy из переданных данных API SuperJob
         :param vacancies_data: данные о вакансиях
         """
-        if vacancies_data.get('objects') is not None:
-            if vacancies_data['objects'] != [] and vacancies_data['total'] != 0:
+        validator = SuperJobVacancyDataValidator()
 
-                for vacancy in vacancies_data['objects']:
-                    cls(vacancy['profession'], int(vacancy['payment_from']),  int(vacancy['payment_to']),
-                        vacancy['link'], vacancy['candidat'], vacancy['address'])
+        if vacancies_data['objects'] != [] and vacancies_data['total'] != 0:
 
-        if vacancies_data.get('items') is not None:
-            if vacancies_data['items'] != [] and vacancies_data['found'] != 0:
+            for vacancy in vacancies_data['objects']:
+                address = validator.validate_address(vacancy['address'])
+                profession = validator.validate_profession(vacancy['profession'])
+                salary_from = validator.validate_salary(vacancy['payment_from'])
+                salary_to = validator.validate_salary(vacancy['payment_to'])
+                url = validator.validate_url(vacancy['link'])
+                requirements = validator.validate_vacancy_requirement(vacancy['candidat'])
 
-                for vacancy in vacancies_data['items']:
+                cls(profession, salary_from, salary_to, url, requirements, address)
 
-                    address = cls.validate_address(vacancy['address'])
-                    salary_from, salary_to = cls.validate_salary(vacancy['salary'])
+    @classmethod
+    def add_to_class_from_headhunter(cls, vacancies_data: dict):
+        """
+        Инициализирует экземпляры класса Vacancy из переданных данных API HeadHunter
+        :param vacancies_data: данные о вакансиях
+        """
+        validator = HeadHunterVacancyDataValidator()
 
-                    cls(vacancy['name'], salary_from, salary_to, vacancy['url'], vacancy['snippet']['requirement'] +
-                        '\n' + vacancy['snippet']['responsibility'], address)
+        if vacancies_data['items'] != [] and vacancies_data['found'] != 0:
+
+            for vacancy in vacancies_data['items']:
+                profession = validator.validate_profession(vacancy['name'])
+                address = validator.validate_address(vacancy['address'])
+                salary_from, salary_to = validator.validate_salary(vacancy['salary'])
+                requirement = validator.validate_vacancy_requirement(vacancy['snippet'])
+                url = validator.validate_url(vacancy['url'])
+
+                cls(profession, salary_from, salary_to, url, requirement, address)
+
+
+class VacancyFilter:
+    """
+    Класс для фильтрации вакансий
+    """
+
+    @staticmethod
+    def get_vacancy_by_salary(vacancies, salary):
+        """
+        Ищет вакансии по зарплате и возвращает список с вакансиями
+        :param vacancies: список с экземплярами класса Vacancy
+        :param salary: зарплата для поиска
+        :return: список с вакансиями
+        """
+        salary_for_check = []
+        vacancies_for_response = []
+
+        for salary_ in re.split(r"[/ -]", salary):
+            if salary_.isdigit():
+                salary_for_check.append(int(salary_))
+
+        if len(salary_for_check) == 0:
+            return 'Введите хотя бы одно число'
+
+        for vacancy in vacancies:
+            if vacancy.salary_from >= salary_for_check[0] or vacancy.salary_to >= salary_for_check[0]:
+                vacancies_for_response.append(vacancy)
+
+        return vacancies_for_response
+
+    @staticmethod
+    def get_vacancy_by_address(vacancies, address):
+        """
+        Ищет вакансии по адресу и возвращает список с вакансиями
+        :param vacancies: список с экземплярами класса Vacancy
+        :param address: адрес для поиска
+        :return: список с вакансиями
+        """
+        address = set(re.split(r', | ', address.strip().lower()))
+        vacancies_for_response = []
+
+        for vacancy in vacancies:
+            address_for_check = set(re.split(r', | ', vacancy.work_address.lower()))
+            if address.issubset(address_for_check):
+                vacancies_for_response.append(vacancy)
+
+        return vacancies_for_response
+
+
+class VacancyBuilder:
+    """
+    Класс для построения ответа о вакансии
+    """
+
+    @staticmethod
+    def build_response(vacancy: Vacancy):
+        """
+        Строит ответ в нужном формате
+        :return: строка в нужном формате"""
+        return f'''Должность: {vacancy.profession}
+Зарплата: от {vacancy.salary_from} до {vacancy.salary_to}
+Ссылка на вакансию: {vacancy.vacancy_url}
+Адрес работы: {vacancy.work_address}'''
+
+
+class VacancyDataValidator(ABC):
+    """
+    Абстрактный класс для проверки данных добавляемых в класс Vacancy
+    """
+
+    @staticmethod
+    @abstractmethod
+    def validate_profession(profession):
+        """
+        Абстрактный метод для проверки правильности формата должности
+        """
+        pass
+
+    @staticmethod
+    @abstractmethod
+    def validate_salary(salary):
+        """
+        Абстрактный метод для проверки правильности формата зарплаты
+        """
+        pass
+
+    @staticmethod
+    @abstractmethod
+    def validate_url(url):
+        """
+        Абстрактный метод для проверки правильности формата ссылки
+        """
+        pass
+
+    @staticmethod
+    @abstractmethod
+    def validate_address(address):
+        """
+        Абстрактный метод для проверки правильности формата адреса
+        """
+        pass
+
+    @staticmethod
+    @abstractmethod
+    def validate_vacancy_requirement(vacancy_requirement):
+        """
+        Абстрактный метод для проверки правильности формата требований к вакансии
+        """
+        pass
+
+
+class SuperJobVacancyDataValidator(VacancyDataValidator):
+    """
+    Класс для проверки данных добавляемых в класс Vacancy с платформы SuperJob
+    """
+
+    @staticmethod
+    def validate_profession(profession):
+        """
+        Проверяет правильность формата должности и возвращает в нужном формате
+        :param profession: данные о должности
+        :return: данные о должности в str
+        """
+        if profession is None:
+            return 'Должность не указана'
+
+        return profession
+
+    @staticmethod
+    def validate_salary(salary):
+        """
+        Проверяет правильность формата зарплаты и возвращает в нужном формате
+        :param salary: данные о зарплате
+        :return: данные о зарплате в int
+        """
+        if salary is None:
+            salary = 0
+
+        return int(salary)
+
+    @staticmethod
+    def validate_address(address):
+        """
+        Проверяет правильность формата адреса и возвращает в нужном формате
+        :param address: данные об адресе
+        :return: данные об адресе в str
+        """
+        if address is None:
+            return 'Нет информации об адресе'
+
+        return address
+
+    @staticmethod
+    def validate_url(url):
+        """
+        Проверяет правильность формата url и возвращает в нужном формате
+        :param url: данные об url
+        :return: данные об url в str
+        """
+        if url is None:
+            return 'url не указан'
+
+        return url
+
+    @staticmethod
+    def validate_vacancy_requirement(vacancy_requirement):
+        """
+        Проверяет правильность формата требований и возвращает в нужном формате
+        :param vacancy_requirement: данные об адресе
+        :return: данные об адресе в str
+        """
+        if vacancy_requirement is None:
+            return 'Требования к вакансии не указаны'
+
+        return vacancy_requirement
+
+
+class HeadHunterVacancyDataValidator(VacancyDataValidator):
+    """
+    Класс для проверки данных добавляемых в класс Vacancy с платформы HeadHunter
+    """
+
+    @staticmethod
+    def validate_profession(profession):
+        """
+        Проверяет правильность формата должности и возвращает в нужном формате
+        :param profession: данные о должности
+        :return: данные о должности в str
+        """
+        if profession is None:
+            return 'Должность не указана'
+
+        return profession
 
     @staticmethod
     def validate_salary(salary):
@@ -146,70 +356,51 @@ class Vacancy:
         if address is None:
             return 'Нет информации об адресе'
 
-        return address['raw']
+        if address['raw'] is not None:
+            return address['raw']
 
+        city, street, building = address['city'], address['street'], address['building']
 
-class VacancyFilter:
-    """
-    Класс для фильтрации вакансий
-    """
+        if address['city'] is None:
+            city = ''
 
-    @staticmethod
-    def get_vacancy_by_salary(salary):
-        """
-        Ищет вакансии по зарплате и возвращает список с вакансиями
-        :param salary: зарплата для поиска
-        :return: список с вакансиями
-        """
-        salary_for_check = []
-        vacancies_for_response = []
+        if address['street'] is None:
+            street = ''
 
-        for salary_ in re.split(r"[/ -]", salary):
-            if salary_.isdigit():
-                salary_for_check.append(int(salary_))
+        if address['building'] is None:
+            building = ''
 
-        if len(salary_for_check) == 0:
-            return 'Введите хотя бы одно число'
-
-        vacancies = Vacancy.all
-
-        for vacancy in vacancies:
-            if vacancy.salary_from >= salary_for_check[0] or vacancy.salary_to >= salary_for_check[0]:
-                vacancies_for_response.append(vacancy)
-
-        return vacancies_for_response
+        return f'{city}, {street}, {building}'
 
     @staticmethod
-    def get_vacancy_by_address(address):
+    def validate_url(url):
         """
-        Ищет вакансии по адресу и возвращает список с вакансиями
-        :param address: адрес для поиска
-        :return: список с вакансиями
+        Проверяет правильность формата url и возвращает в нужном формате
+        :param url: данные об url
+        :return: данные об url в str
         """
-        address = set(re.split(r', | ', address.strip().lower()))
-        vacancies_for_response = []
+        if url is None:
+            return 'url не указан'
 
-        vacancies = Vacancy.all
-
-        for vacancy in vacancies:
-            address_for_check = set(re.split(r', | ', vacancy.work_address.lower()))
-            if address.issubset(address_for_check):
-                vacancies_for_response.append(vacancy)
-
-        return vacancies_for_response
-
-
-class VacancyBuilder:
-    """
-    Класс для построения ответа о вакансии
-    """
+        return url
 
     @staticmethod
-    def build_response(vacancy: Vacancy):
+    def validate_vacancy_requirement(vacancy_requirement):
         """
-        Строит ответ в нужном формате
-        :return: строка в нужном формате"""
-        return f'''Должность: {vacancy.profession}
-Зарплата: от {vacancy.salary_from} до {vacancy.salary_to}
-Ссылка на вакансию: {vacancy.vacancy_url}
-Адрес работы: {vacancy.work_address}'''
+        Проверяет правильность формата требований и возвращает в нужном формате
+        :param vacancy_requirement: данные об адресе
+        :return: данные об адресе в str
+        """
+        if vacancy_requirement is None:
+            return 'Требования к вакансии не указаны'
+
+        requirement = vacancy_requirement['requirement']
+        responsibility = vacancy_requirement['responsibility']
+
+        if requirement is None:
+            requirement = ''
+
+        if responsibility is None:
+            responsibility = ''
+
+        return f'{requirement} {responsibility}'

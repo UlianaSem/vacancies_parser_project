@@ -21,8 +21,8 @@ def main():
         hh_vacancies = hh.get_vacancies(profession)
 
         # Добавляем вакансии в класс Vacancy
-        src.vacancy.Vacancy.add_to_class(superjob_vacancies)
-        src.vacancy.Vacancy.add_to_class(hh_vacancies)
+        src.vacancy.Vacancy.add_to_class_from_superjob(superjob_vacancies)
+        src.vacancy.Vacancy.add_to_class_from_headhunter(hh_vacancies)
 
         # Создаем объекты для работы с файлами
         csv_file = src.saver.CSVSaver()
@@ -52,6 +52,8 @@ def main():
             profession = input(
                 'Вакансии по Вашему запросу не найдены. Попробуйте изменить запрос. Какая профессия Вас интересует? '
                 'Для выхода введите "выход"\n').title()
+
+            src.vacancy.Vacancy.all.clear()
 
             if profession.lower().strip() == 'выход':
                 return
