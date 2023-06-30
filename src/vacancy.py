@@ -153,7 +153,7 @@ class VacancyFilter:
                 salary_for_check.append(int(salary_))
 
         if len(salary_for_check) == 0:
-            return 'Введите хотя бы одно число'
+            raise Exception('Введите хотя бы одно число')
 
         for vacancy in vacancies:
             if vacancy.salary_from >= salary_for_check[0] or vacancy.salary_to >= salary_for_check[0]:
