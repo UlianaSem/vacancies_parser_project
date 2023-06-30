@@ -33,8 +33,10 @@ def main():
         json_file.add_vacancy()
 
         # Запрашиваем адрес и зарплату для поиска
-        work_address = input('Пожалуйста, введите интересующий Вас город\n').lower()
-        salary = input('Пожалуйста, введите интересующий Вас диапазон зарплаты\n').lower()
+        work_address = input(
+            'Пожалуйста, введите интересующий Вас город. Введите слово "везде", если хотите искать вакансии по всей '
+            'стране\n').lower().strip()
+        salary = input('Пожалуйста, введите интересующий Вас диапазон зарплаты\n').lower().strip()
 
         # Создаем объект для фильтрации вакансий
         vacancies_filter = src.vacancy.VacancyFilter()
@@ -42,8 +44,10 @@ def main():
         vacancies_for_filter = src.vacancy.Vacancy.all
 
         # Получаем вакансии по зарплате и адресу
-        vacancies_by_salary = vacancies_filter.get_vacancy_by_salary(vacancies_for_filter, salary)
-        filtered_vacancies = vacancies_filter.get_vacancy_by_address(vacancies_by_salary, work_address)
+        filtered_vacancies = vacancies_filter.get_vacancy_by_salary(vacancies_for_filter, salary)
+
+        if work_address != 'везде':
+            filtered_vacancies = vacancies_filter.get_vacancy_by_address(filtered_vacancies, work_address)
 
         # Находим количество полученных вакансий
         vacancies_quantity = len(filtered_vacancies)
