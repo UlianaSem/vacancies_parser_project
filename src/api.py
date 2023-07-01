@@ -46,11 +46,11 @@ class SuperJobAPI(API):
         }
 
         while page < pages:
-            time.sleep(2)
+            time.sleep(1)
 
             vacancies = requests.get(self.URL, headers=self.HEADERS, params=params).json()
 
-            vacancies_list.extend([vacancies])
+            vacancies_list.extend(vacancies['objects'])
             pages = vacancies['total'] // 100
             page += 1
 
@@ -82,11 +82,11 @@ class HeadHunterAPI(API):
         }
 
         while page < pages:
-            time.sleep(2)
+            time.sleep(1)
 
             vacancies = requests.get(self.URL, params=params).json()
 
-            vacancies_list.extend([vacancies])
+            vacancies_list.extend(vacancies['items'])
             pages = vacancies['pages']
             page += 1
 
