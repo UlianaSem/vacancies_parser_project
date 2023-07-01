@@ -1,4 +1,5 @@
 import os
+import time
 from abc import ABC, abstractmethod
 
 import requests
@@ -36,13 +37,24 @@ class SuperJobAPI(API):
         """
         profession = profession.strip()
 
+        vacancies_list = []
+        page, pages = 0, 1
         params = {
-            "keyword": profession
+            "keyword": profession,
+            "count": 100,
+            "page": page
         }
 
-        vacancies = requests.get(self.URL, headers=self.HEADERS, params=params)
+        while page < pages:
+            time.sleep(2)
 
-        return vacancies.json()
+            vacancies = requests.get(self.URL, headers=self.HEADERS, params=params).json()
+
+            vacancies_list.extend([vacancies])
+            pages = vacancies['total'] // 100
+            page += 1
+
+        return vacancies_list
 
 
 class HeadHunterAPI(API):
@@ -60,11 +72,22 @@ class HeadHunterAPI(API):
         """
         profession = profession.strip()
 
+        vacancies_list = []
+        page, pages = 0, 1
         params = {
             "text": profession,
-            "search_field": 'name'
+            "search_field": 'name',
+            "page": page,
+            "per_page": 100
         }
 
-        vacancies = requests.get(self.URL, params=params)
+        while page < pages:
+            time.sleep(2)
 
-        return vacancies.json()
+            vacancies = requests.get(self.URL, params=params).json()
+
+            vacancies_list.extend([vacancies])
+            pages = vacancies['pages']
+            page += 1
+
+        return vacancies_list
