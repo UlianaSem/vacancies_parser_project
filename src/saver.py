@@ -2,6 +2,7 @@ import csv
 import json
 import re
 from abc import ABC, abstractmethod
+from datetime import datetime
 
 import src.vacancy
 
@@ -143,7 +144,11 @@ class JSONSaver(Saver):
     Класс для работы с файлами JSON
     """
 
-    PATH_TO_FILE = '../src/vacancies.json'
+    def __init__(self):
+        """
+        Инициализирует название файла
+        """
+        self.path_to_file = f'../src/vacancies_{str(datetime.now())}.json'
 
     def add_vacancy(self):
         """
@@ -190,7 +195,7 @@ class JSONSaver(Saver):
         Открывает и возвращает файл с вакансиями
         :return: список словарей м вакансиями
         """
-        with open(self.PATH_TO_FILE, 'r', encoding='utf-8') as file:
+        with open(self.path_to_file, 'r', encoding='utf-8') as file:
             vacancies = file.read()
 
         return json.loads(vacancies)
@@ -199,7 +204,7 @@ class JSONSaver(Saver):
         """
         Записывает информацию о вакансиях в файл
         """
-        with open(self.PATH_TO_FILE, 'w', encoding='utf-8') as file:
+        with open(self.path_to_file, 'w', encoding='utf-8') as file:
             file.write(vacancies)
 
     @classmethod
@@ -210,7 +215,7 @@ class JSONSaver(Saver):
         """
         vacancies = super().get_data__()
 
-        return json.dumps(vacancies)
+        return json.dumps(vacancies, indent=2, ensure_ascii=False)
 
 
 class CSVSaver(Saver):
@@ -218,7 +223,11 @@ class CSVSaver(Saver):
     Класс для работы с файлами CSV
     """
 
-    PATH_TO_FILE = '../src/vacancies.csv'
+    def __init__(self):
+        """
+        Инициализирует название файла
+        """
+        self.path_to_file = f'../src/vacancies_{str(datetime.now())}.csv'
 
     def add_vacancy(self):
         """
@@ -266,7 +275,7 @@ class CSVSaver(Saver):
         """
         vacancies = []
 
-        with open(self.PATH_TO_FILE, 'r', encoding='utf-8') as file:
+        with open(self.path_to_file, 'r', encoding='utf-8') as file:
             reader = csv.DictReader(file)
 
             for line in reader:
@@ -278,7 +287,7 @@ class CSVSaver(Saver):
         """
         Записывает информацию о вакансиях в файл
         """
-        with open(self.PATH_TO_FILE, 'w', encoding='utf-8') as file:
+        with open(self.path_to_file, 'w', encoding='utf-8') as file:
             field_names = ['profession', 'salary_from', 'salary_to', 'vacancy_url', 'vacancy_requirement',
                            'work_address']
             writer = csv.DictWriter(file, fieldnames=field_names)

@@ -14,9 +14,9 @@ def test_get_data__(get_saver_for_test):
 
     json, csv = get_saver_for_test
 
-    assert json.get_data__() == '[{"profession": "Developer", "salary_from": 100000, "salary_to": 110000, ' \
-                                '"vacancy_url": "www.test.ru", "vacancy_requirement": "Some requirements", ' \
-                                '"work_address": "Some address"}]'
+    assert json.get_data__() == '[\n  {\n    "profession": "Developer",\n    "salary_from": 100000,\n    "salary_to": ' \
+                                '110000,\n    "vacancy_url": "www.test.ru",\n    "vacancy_requirement": "Some ' \
+                                'requirements",\n    "work_address": "Some address"\n  }\n]'
     assert csv.get_data__() == [{'profession': 'Developer', 'salary_from': 100000, 'salary_to': 110000,
                                  'vacancy_requirement': 'Some requirements', 'vacancy_url': 'www.test.ru',
                                  'work_address': 'Some address'}]
@@ -25,8 +25,8 @@ def test_get_data__(get_saver_for_test):
 def test_get_vacancy_by_salary(get_saver_for_test):
     json, csv = get_saver_for_test
 
-    json.PATH_TO_FILE = '../tests/test_vacancies.json'
-    csv.PATH_TO_FILE = '../tests/test_vacancies.csv'
+    json.path_to_file = '../tests/test_vacancies.json'
+    csv.path_to_file = '../tests/test_vacancies.csv'
 
     assert json.get_vacancy_by_salary('Test') == 'Введите хотя бы одно число'
     assert csv.get_vacancy_by_salary('Test') == 'Введите хотя бы одно число'
@@ -75,8 +75,8 @@ def test_get_vacancy_by_salary(get_saver_for_test):
 def test_get_vacancy_by_address(get_saver_for_test):
     json, csv = get_saver_for_test
 
-    json.PATH_TO_FILE = '../tests/test_vacancies.json'
-    csv.PATH_TO_FILE = '../tests/test_vacancies.csv'
+    json.path_to_file = '../tests/test_vacancies.json'
+    csv.path_to_file = '../tests/test_vacancies.csv'
 
     assert json.get_vacancy_by_address('TestTestTest') == []
     assert csv.get_vacancy_by_address('TestTestTest') == []
