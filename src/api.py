@@ -82,7 +82,7 @@ class SuperJobAPI(API):
                                          'address': address
                                          })
 
-            return vacancies_for_return
+        return vacancies_for_return
 
 
 class HeadHunterAPI(API):
@@ -144,7 +144,7 @@ class HeadHunterAPI(API):
                                          'requirements': requirement,
                                          'address': address})
 
-            return vacancies_for_return
+        return vacancies_for_return
 
 
 class VacancyDataValidator(ABC):
