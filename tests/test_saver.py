@@ -10,6 +10,9 @@ def get_saver_for_test():
 
 
 def test_get_data__(get_saver_for_test):
+    """
+    Проверяет корректность получения данных их класса
+    """
     src.vacancy.Vacancy('Developer', 100000, 110000, 'www.test.ru', 'Some requirements', 'Some address')
 
     json, csv = get_saver_for_test
@@ -23,6 +26,10 @@ def test_get_data__(get_saver_for_test):
 
 
 def test_get_vacancy_by_salary(get_saver_for_test):
+    """
+    Проверяет правильность фильтра по зарплате
+    :param get_saver_for_test: объект класса JSONSaver и CSVSaver
+    """
     json, csv = get_saver_for_test
 
     json.path_to_file = '../tests/test_vacancies.json'
@@ -73,6 +80,10 @@ def test_get_vacancy_by_salary(get_saver_for_test):
 
 
 def test_get_vacancy_by_address(get_saver_for_test):
+    """
+    Проверяет правильность фильтра по адресу
+    :param get_saver_for_test: объект класса JSONSaver и CSVSaver
+    """
     json, csv = get_saver_for_test
 
     json.path_to_file = '../tests/test_vacancies.json'
