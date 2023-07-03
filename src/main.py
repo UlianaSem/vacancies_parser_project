@@ -20,9 +20,13 @@ def main():
         superjob_vacancies = superjob.get_vacancies(profession)
         hh_vacancies = hh.get_vacancies(profession)
 
+        # Форматируем данные о вакансиях
+        superjob_vacancies = superjob.formate_data(superjob_vacancies)
+        hh_vacancies = hh.formate_data(hh_vacancies)
+
         # Добавляем вакансии в класс Vacancy
-        src.vacancy.Vacancy.add_to_class_from_superjob(superjob_vacancies)
-        src.vacancy.Vacancy.add_to_class_from_headhunter(hh_vacancies)
+        src.vacancy.Vacancy.add_to_class(superjob_vacancies)
+        src.vacancy.Vacancy.add_to_class(hh_vacancies)
 
         # Создаем объекты для работы с файлами
         csv_file = src.saver.CSVSaver()
