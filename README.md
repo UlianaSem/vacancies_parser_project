@@ -4,7 +4,7 @@
 
 Парсер вакансий на платформах SuperJob и HeadHunter. Запрос происходит по названию должности. Есть возможность получения вакансий по заданному городу и заданному диапазону зарплаты. Полученные вакансии сохраняются в файлы в формате JSON и CSV.
 
-<img height="" src="/home/uliana/Изображения/Снимки экрана/Снимок экрана от 2023-07-03 21-42-36.png" width=""/>
+<img height="" src="/home/uliana/PycharmProjects/job_parser/readme_screen/example.png" width=""/>
 
 ## Установка
 
@@ -19,4 +19,4 @@
 
 ### Пример использования
 
-<img src="/home/uliana/Загрузки/Запись экрана от 2023-07-03 21-37-50.gif"/>
+<img src="/home/uliana/PycharmProjects/job_parser/readme_screen/example.gif"/>
