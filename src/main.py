@@ -32,50 +32,61 @@ def main():
         csv_file.add_vacancy()
         json_file.add_vacancy()
 
-        # Запрашиваем адрес и зарплату для поиска
-        work_address = input(
-            'Пожалуйста, введите интересующий Вас город. Введите слово "везде", если хотите искать вакансии по всей '
-            'стране\n').lower().strip()
-        salary = input('Пожалуйста, введите интересующий Вас диапазон зарплаты\n').lower().strip()
+        while True:
 
-        # Создаем объект для фильтрации вакансий
-        vacancies_filter = src.vacancy.VacancyFilter()
+            # Запрашиваем адрес и зарплату для поиска
+            work_address = input(
+                'Пожалуйста, введите интересующий Вас город. Введите слово "везде", если хотите искать вакансии по '
+                'всей стране\n').lower().strip()
+            salary = input('Пожалуйста, введите интересующий Вас диапазон зарплаты\n').lower().strip()
 
-        vacancies_for_filter = src.vacancy.Vacancy.all
+            # Создаем объект для фильтрации вакансий
+            vacancies_filter = src.vacancy.VacancyFilter()
 
-        # Получаем вакансии по зарплате и адресу
-        filtered_vacancies = vacancies_filter.get_vacancy_by_salary(vacancies_for_filter, salary)
+            vacancies_for_filter = src.vacancy.Vacancy.all
 
-        if work_address != 'везде':
-            filtered_vacancies = vacancies_filter.get_vacancy_by_address(filtered_vacancies, work_address)
+            # Получаем вакансии по зарплате и адресу
+            filtered_vacancies = vacancies_filter.get_vacancy_by_salary(vacancies_for_filter, salary)
 
-        # Находим количество полученных вакансий
-        vacancies_quantity = len(filtered_vacancies)
+            if work_address != 'везде':
+                filtered_vacancies = vacancies_filter.get_vacancy_by_address(filtered_vacancies, work_address)
 
-        if vacancies_quantity == 0:
-            profession = input(
-                'Вакансии по Вашему запросу не найдены. Попробуйте изменить запрос. Какая профессия Вас интересует? '
-                'Для выхода введите "выход"\n').title()
+            # Находим количество полученных вакансий
+            vacancies_quantity = len(filtered_vacancies)
 
-            src.vacancy.Vacancy.all.clear()
+            if vacancies_quantity == 0:
+                exit_ = input(
+                    'Вакансии по Вашему запросу не найдены. Попробуйте изменить запрос. Чтобы продолжить нажмите '
+                    'любую кнопку. Для выхода введите "выход"\n')
 
-            if profession.lower().strip() == 'выход':
-                return
+                if exit_.lower().strip() == 'выход':
+                    return
 
-        else:
-            top = int(input(f'Количество найденных вакансий: {vacancies_quantity}. Сколько вывести на экран?\n'))
+            else:
+                top = int(input(f'Количество найденных вакансий: {vacancies_quantity}. Сколько вывести на экран?\n'))
 
-            if top > vacancies_quantity or top < 0:
-                top = vacancies_quantity
+                if top > vacancies_quantity or top < 0:
+                    top = vacancies_quantity
 
-            # Создаем объект для построения ответа
-            builder = src.vacancy.VacancyBuilder()
+                filtered_vacancies.sort(reverse=True)
 
-            for index in range(top):
-                print(builder.build_response(filtered_vacancies[index]))
-                print('')
+                # Создаем объект для построения ответа
+                builder = src.vacancy.VacancyBuilder()
 
-            return
+                for index in range(top):
+                    print(builder.build_response(filtered_vacancies[index]))
+                    print('')
+
+                src.vacancy.Vacancy.all.clear()
+
+                profession = input(
+                    'Хотите ли посмотреть еще вакансии? Пожалуйста, введите название должности, которая Вас '
+                    'интересует. Для выхода введите "выход"\n')
+
+                if profession.lower().strip() == 'выход':
+                    return
+
+                break
 
 
 if __name__ == '__main__':
